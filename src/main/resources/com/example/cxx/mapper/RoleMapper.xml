@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.cxx.mapper.RoleMapper">
+<!--    大于一个参数时，keyProperty会报错-->
+<!--    多个参数时，在@param返回指定的参数的id， 如@param("list) keyProperty="list.id"-->
+    <insert id="addRole" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+<!--        insert into sys_role-->
+<!--            <trim prefix="(" suffix=")" suffixOverrides=",">-->
+<!--                role, role_name, is_super,-->
+<!--                <if test="remark != null and remark != ''">-->
+<!--                    remark,-->
+<!--                </if>-->
+<!--                create_time-->
+<!--            </trim>-->
+<!--        values-->
+<!--            <trim prefix="(" suffix=")" suffixOverrides=",">-->
+<!--                #{role}, #{roleName}, #{isSuper},-->
+<!--            <if test="remark != null and remark != ''">-->
+<!--                #{remark},-->
+<!--            </if>-->
+<!--                #{now}-->
+<!--            </trim>-->
+    insert into sys_role (role_id, role_name, is_super, remark, create_time) values
+    (#{roleId}, #{roleName}, #{isSuper}, #{remark}, now())
+    </insert>
+
+    <select id="getRoleList" resultType="com.example.cxx.pojo.Role">
+        select r.* from sys_role r
+        <where>
+            <if test="isSuper != null">
+                is_super = #{isSuper}
+            </if>
+            <if test="name != null and name != ''">
+                and  role_id like concat('%', #{name}, '%') or role_name like concat('%', #{name}, '%')
+            </if>
+        </where>
+    </select>
+
+    <update id="updateRole" useGeneratedKeys="true" keyProperty="role_id" keyColumn="role_id">
+        update sys_role
+        <set>
+            <if test="roleId != null and roleId != ''">
+                role_id = #{roleId},
+            </if>
+            <if test="roleName != null and roleName != ''">
+                role_name = #{roleName},
+            </if>
+            <if test="isSuper != null">
+                is_super = #{isSuper},
+            </if>
+            <if test="remark != null and remark != ''">
+                remark = #{remark},
+            </if>
+            update_time = #{updateTime}
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteRoleInBatch">
+        delete from sys_role where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=");">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="getMenusById">
+        select rm.menu_id from sys_role_menu rm
+        where rm.role_id = #{roleId}
+    </select>
+
+
+
+    <delete id="deleteRoleMenu">
+        delete from sys_role_menu where
+        role_id = #{roleId} and menu_id in
+        <foreach collection="menus" item="id" separator="," open="(" close=");">
+            #{id}
+        </foreach>
+    </delete>
+
+
+
+</mapper>

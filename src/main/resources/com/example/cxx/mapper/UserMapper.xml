@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.cxx.mapper.UserMapper">
+
+    <select id="queryUserByUserId" resultType="com.example.cxx.pojo.User">
+        select u.*, d.name as deptName, ur.role_id as roleId, r.role_name as roleName, r.is_super as isSuper
+        from sys_user u
+        left join sys_department d on u.dept_id = d.id
+        left join sys_user_role ur on u.user_id = ur.user_id
+        left join sys_role r on ur.role_id = r.role_id
+        where u.user_id = #{userId}
+    </select>
+
+<!--    更新用户信息-->
+    <update id="updateUserInfo" useGeneratedKeys="true" keyColumn="user_id" keyProperty="user_id">
+        update sys_user
+        <set>
+            <if test="userId != null and userId != ''">
+                user_id = #{userId},
+            </if>
+            <if test="username != null and username != ''">
+                username = #{username},
+            </if>
+            <if test="deptId != null">
+                dept_id = #{deptId},
+            </if>
+            <if test="email != null and email != ''">
+                email = #{email},
+            </if>
+            <if test="phone != null and phone !=''">
+                phone = #{phone},
+            </if>
+            <if test="avatar != null and avatar != ''">
+                avatar = #{avatar},
+            </if>
+            <if test="remark != null and remark != ''">
+                remark = #{remark},
+            </if>
+            update_time = now()
+        </set>
+        where id = #{id};
+    </update>
+
+
+
+    <select id="getUserList" resultType="com.example.cxx.pojo.User">
+        select u.*, d.name as deptName, ur.role_id as roleId, r.role_name as roleName,r.is_super as isSuper
+        from sys_user u
+            left join sys_department d on  u.dept_id = d.id
+            left join sys_user_role ur on ur.user_id = u.user_id
+            left join sys_role r on r.role_id= ur.role_id
+        <where>
+            <if test="name != null and name !=''">
+                u.username like concat('%', #{name}, '%') or u.user_id like concat('%', #{name}, '%')
+            </if>
+            <if test="isSuper != null">
+                and r.is_super = #{isSuper}
+            </if>
+            and u.dept_id in
+            <foreach collection="deptIds" item="deptId" separator="," open="(" close=")">
+                #{deptId}
+            </foreach>
+        </where>
+        order by u.id
+        <if test="offSet != null and pageSize != null">
+            limit #{offSet} , #{pageSize}
+        </if>
+    </select>
+
+<!--    导出-->
+    <select id="getUserEntityList" resultType="com.example.cxx.pojo.UserEntity">
+        select u.*, d.name as deptName, ur.role_id as roleId, r.role_name as roleName,r.is_super as isSuper
+        from sys_user u
+        left join sys_department d on  u.dept_id = d.id
+        left join sys_user_role ur on ur.user_id = u.user_id
+        left join sys_role r on r.role_id= ur.role_id
+        <where>
+            <if test="name != null and name !=''">
+                u.username like concat('%', #{name}, '%') or u.user_id like concat('%', #{name}, '%')
+            </if>
+            <if test="isSuper != null">
+                and r.is_super = #{isSuper}
+            </if>
+            and u.dept_id in
+            <foreach collection="deptIds" item="deptId" separator="," open="(" close=")">
+                #{deptId}
+            </foreach>
+        </where>
+        order by u.id
+        <if test="offSet != null and pageSize != null">
+            limit #{offSet} , #{pageSize}
+        </if>
+    </select>
+
+<!--    新增用户, useGeneratedKeys自增返回user对象-->
+    <insert id="addNewUser"  useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into sys_user (user_id, username, password, dept_id, email, phone, remark, create_time)
+            values (#{userId},#{username},#{password},#{deptId},#{email},#{phone},#{remark},now());
+    </insert>
+<!--    批量删除用户-->
+    <delete id="deleteUserInBatch">
+        delete from sys_user where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=");">
+            #{id}
+        </foreach>
+    </delete>
+
+
+<!--    批量导入-->
+    <insert id="importUsers">
+        insert into sys_user (user_id, username, password, dept_id, email, phone, avatar, remark, create_time, update_time)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.userId}, #{item.username},#{item.password},#{item.deptId},#{item.email},#{item.phone},#{item.avatar},#{item.remark},
+             #{item.createTime}, #{item.updateTime})
+        </foreach>
+        ;
+        insert into sys_user_role (user_id, role_id, create_time)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.userId}, #{item.roleId},#{item.createTime})
+        </foreach>
+        ;
+    </insert>
+</mapper>

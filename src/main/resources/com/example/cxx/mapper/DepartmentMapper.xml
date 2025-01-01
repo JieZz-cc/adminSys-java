@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+                PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+                "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.cxx.mapper.DepartmentMapper">
+    <update id="updateDepartment">
+        update sys_department
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="parentId != null">
+                parent_id = #{parentId},
+            </if>
+            <if test="sort != null">
+                sort = #{sort},
+            </if>
+            <if test="isEnable != null">
+                is_enable = #{isEnable},
+            </if>
+            update_time = #{now}
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="getDepartmentList" resultType="com.example.cxx.pojo.Department">
+        select * from sys_department
+        <where>
+            <if test="isEnable != null">
+                is_enable = #{isEnable}
+            </if>
+        </where>
+    </select>
+
+<!--    递归查询, -->
+    <select id="getDepartmentIds" resultType="java.lang.Integer">
+        with recursive dept_tree as (
+            select id from sys_department where id = #{id}
+            union all
+            select d.id from sys_department d
+            join dept_tree dt on d.parent_id = dt.id
+        )
+        select * from dept_tree;
+    </select>
+</mapper>

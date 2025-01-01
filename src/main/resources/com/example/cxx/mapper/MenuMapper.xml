@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.cxx.mapper.MenuMapper">
+<!--    SELECT  m.* FROM  sys_role_menu rm-->
+<!--    INNER JOIN sys_menu m ON m.id = rm.menu_id-->
+<!--    INNER JOIN sys_user_role ur ON ur.role_id = rm.role_id-->
+<!--    where  ur.user_id = #{userId} and rm.is_enable = 1 order by m.sort asc;-->
+
+    <select id="getAuthMenuById" resultType="com.example.cxx.pojo.Menu">
+
+        select m.id, m.menu_id, m.path, m.parent_id, m.sort, m.title, m.icon, rm.is_enable, m.is_link, m.is_affix,
+               m.is_keep_alive
+        from sys_menu m
+        join sys_role_menu rm on m.menu_id = rm.menu_id
+        join sys_user_role ur on rm.role_id = ur.role_id
+        where ur.user_id = #{userId} and rm.is_enable = 1 order by m.sort asc;
+
+    </select>
+
+    <select id="getAllMenu" resultType="com.example.cxx.pojo.Menu">
+        select m.* from sys_menu m
+        <where>
+            <if test="name != null and name != ''">
+                m.menu_id like concat('%', #{name}, '%') or m.title like concat('%', #{name}, '%')
+            </if>
+            <if test="isEnable != null">
+                and  m.is_enable = #{isEnable}
+            </if>
+            <if test="isKeepAlive != null">
+                and m.is_keep_alive = #{isKeepAlive}
+            </if>
+            <if test="isLink != null">
+                and m.is_link = #{isLink}
+            </if>
+        </where>
+        order by m.sort asc
+    </select>
+
+    <insert id="addRoleMenu">
+        insert into sys_role_menu (role_id, menu_id, create_time) values
+        <foreach collection="menus" item="menuId" separator=",">
+            (#{roleId}, #{menuId}, now())
+        </foreach>
+    </insert>
+
+    <insert id="addMenu">
+        insert into sys_menu
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            menu_id, path, parent_id, title,
+            <if test="sort != null">
+                sort,
+            </if>
+            <if test="icon != null and icon != ''">
+                icon,
+            </if>
+            <if test="isLink != null">
+                is_link,
+            </if>
+            <if test="isEnable != null">
+                is_enable,
+            </if>
+            <if test="isAffix != null">
+                is_affix,
+            </if>
+            <if test="isKeepAlive != null">
+                is_keep_alive,
+            </if>
+            create_time
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            #{menuId}, #{path}, #{parentId}, #{title},
+            <if test="sort != null">
+                #{sort},
+            </if>
+            <if test="icon != null and icon != ''">
+                #{icon},
+            </if>
+            <if test="isLink != null">
+                #{isLink},
+            </if>
+            <if test="isEnable != null">
+                #{isEnable},
+            </if>
+            <if test="isAffix != null">
+                #{isAffix},
+            </if>
+            <if test="isKeepAlive != null">
+                #{isKeepAlive},
+            </if>
+            now()
+        </trim>
+    </insert>
+
+    <update id="updateMenu">
+        update sys_menu m
+        <set>
+            m.menu_id=#{menu.menuId}, m.path=#{menu.path}, m.parent_id=#{menu.parentId}, m.title=#{menu.title}, m.update_time=#{menu.updateTime},
+            m.icon=#{menu.icon},
+            <if test="menu.sort != null">
+                m.sort=#{menu.sort},
+            </if>
+            <if test="menu.isLink != null">
+                m.is_link=#{menu.isLink},
+            </if>
+            <if test="menu.isEnable != null">
+                m.is_enable=#{menu.isEnable},
+            </if>
+            <if test="menu.isAffix != null">
+                m.is_affix=#{menu.isAffix},
+            </if>
+            <if test="menu.isKeepAlive != null">
+                m.is_keep_alive=#{menu.isKeepAlive},
+            </if>
+        </set>
+        where m.id = #{menu.id};
+    </update>
+
+
+</mapper>

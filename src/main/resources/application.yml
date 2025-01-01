@@ -1,0 +1,19 @@
+#spring.application.name=mySystem-java
+# allowMultiQueries=true 允许批量执行sql
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/itcast?serverTimezone=Asia/Shanghai&allowMultiQueries=true
+    username: root
+    password: 123456cc
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true    # ??????????
+
