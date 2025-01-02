@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.cxx.mapper.NoticeMapper">
+<!--    获取通知总条数-->
+    <select id="getNoticeCounts" resultType="java.lang.Integer">
+        select count(*) from sys_notice
+        <where>
+            <if test="title != null and title != ''">
+                title like concat('%', #{title}, '%')
+            </if>
+            <if test="noticeType != null">
+                and notice_type = #{noticeType}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="toRange != null">
+                and to_range = #{toRange}
+            </if>
+            <if test="priority != null">
+                and priority = #{priority}
+            </if>
+        </where>
+    </select>
+
+<!--    获取通知列表-->
+    <select id="getNotices" resultType="com.example.cxx.pojo.Notice">
+        select * from sys_notice
+        <where>
+            <if test="title != null and title != ''">
+                title like concat('%', #{title}, '%')
+            </if>
+            <if test="noticeType != null">
+                and notice_type = #{noticeType}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="toRange != null">
+                and to_range = #{toRange}
+            </if>
+            <if test="priority != null">
+                and priority = #{priority}
+            </if>
+        </where>
+        order by id
+        <if test="offSet != null and pageSize != null">
+            limit #{offSet} , #{pageSize}
+        </if>
+    </select>
+
+<!--    编辑-->
+    <update id="editNoticeById">
+        update sys_notice
+        <set>
+            <if test="notice.title != null and notice.title != ''">
+                title = #{notice.title},
+            </if>
+            <if test="notice.noticeType != null">
+                notice_type = #{notice.noticeType},
+            </if>
+            <if test="notice.status != null">
+                status = #{notice.status},
+            </if>
+            <if test="notice.toRange != null">
+                to_range = #{notice.toRange},
+            </if>
+            <if test="notice.priority != null">
+                priority = #{notice.priority},
+            </if>
+            update_time = #{notice.updateTime}
+        </set>
+        where id = #{notice.id}
+
+    </update>
+
+<!--    批量删除-->
+    <delete id="deleteNoticeInBatch">
+        delete from sys_notice where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=");">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
