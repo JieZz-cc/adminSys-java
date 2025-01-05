@@ -3,6 +3,32 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.cxx.mapper.NoticeMapper">
+    <insert id="addNewNotice" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into sys_notice (title, notice_type, status, to_range, priority, publisher, content, create_time)
+        values
+        (#{notice.title}, #{notice.noticeType}, #{notice.status},#{notice.toRange},#{notice.priority},
+        #{notice.publisher}, #{notice.content}, #{notice.createTime})
+        ;
+    </insert>
+
+    <insert id="addUserNotice">
+        set foreign_key_checks = 0;
+        insert into sys_user_notice (user_id, notice_id, create_time)
+        values
+        <foreach collection="receiverList" index="index" item="item" separator=",">
+            (#{item}, #{id}, now())
+        </foreach>
+        ;
+        set foreign_key_checks = 1;
+    </insert>
+
+    <delete id="deleteUserNotice">
+        delete from sys_user_notice where notice_id = #{id} and user_id in
+        <foreach collection="list" item="user_id" separator="," open="(" close=");">
+            #{user_id}
+        </foreach>
+    </delete>
+
 <!--    获取通知总条数-->
     <select id="getNoticeCounts" resultType="java.lang.Integer">
         select count(*) from sys_notice
@@ -22,30 +48,37 @@
             <if test="priority != null">
                 and priority = #{priority}
             </if>
+            <if test="publisher != null and publisher != ''">
+                and publisher = #{publisher}
+            </if>
         </where>
     </select>
 
 <!--    获取通知列表-->
     <select id="getNotices" resultType="com.example.cxx.pojo.Notice">
-        select * from sys_notice
+        select n.*, u.username as parsedPublisher from sys_notice n
+        left join sys_user u on n.publisher = u.user_id
         <where>
             <if test="title != null and title != ''">
-                title like concat('%', #{title}, '%')
+                n.title like concat('%', #{title}, '%')
             </if>
             <if test="noticeType != null">
-                and notice_type = #{noticeType}
+                and n.notice_type = #{noticeType}
             </if>
             <if test="status != null">
-                and status = #{status}
+                and n.status = #{status}
             </if>
             <if test="toRange != null">
-                and to_range = #{toRange}
+                and n.to_range = #{toRange}
             </if>
             <if test="priority != null">
-                and priority = #{priority}
+                and n.priority = #{priority}
+            </if>
+            <if test="publisher != null and publisher != ''">
+                and n.publisher = #{publisher}
             </if>
         </where>
-        order by id
+        order by n.id
         <if test="offSet != null and pageSize != null">
             limit #{offSet} , #{pageSize}
         </if>
@@ -70,7 +103,7 @@
             <if test="notice.priority != null">
                 priority = #{notice.priority},
             </if>
-            update_time = #{notice.updateTime}
+            content = #{notice.content},
         </set>
         where id = #{notice.id}
 

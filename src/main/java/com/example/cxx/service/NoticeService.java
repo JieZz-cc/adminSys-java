@@ -18,4 +18,6 @@ public interface NoticeService {
 
 
     void deleteNoticeInBatch(int[] ids);
+
+    void publishNotice(Notice notice);
 }

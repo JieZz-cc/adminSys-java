@@ -20,10 +20,10 @@ public class NoticeController {
     // 新增
     @PostMapping("/addNewNotice")
     Result addNewNotice(@RequestBody Notice notice) {
-        Notice n = noticeService.queryNoticeByName(notice.getTitle());
-        if (n != null) return Result.error("已存在该公告标题");
+//        Notice n = noticeService.queryNoticeByName(notice.getTitle());
+//        if (n != null) return Result.error("已存在该公告标题");
         noticeService.addNewNotice(notice);
-        return Result.success("新增成功，快去发布把");
+        return Result.success("新增成功，快去发布吧");
     }
     // 查询列表
     @PostMapping("/getNotices")
@@ -36,6 +36,12 @@ public class NoticeController {
     Result editNoticeById(@RequestBody Notice notice) {
         noticeService.editNoticeById(notice);
         return Result.success("编辑成功");
+    }
+    // 发布公告
+    @PutMapping("/publish")
+    Result publishNotice(@RequestBody Notice notice) {
+        noticeService.publishNotice(notice);
+        return Result.success("发布成功");
     }
 
     // 删除单个

@@ -14,8 +14,12 @@ public class Notice {
     private Integer status;
     private Integer toRange;
     private Integer priority;
+    private String publisher;
+    private String parsedPublisher;
+    private String content;
+    private String[] receiverList;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime updateTime;
+    private LocalDateTime publishTime;
 }

@@ -30,8 +30,7 @@ public interface UserMapper {
     List<User> getUserList(@Param("deptIds") int[] deptIds, @Param("isSuper") Integer isSuper, @Param("name") String name, @Param("offSet") Integer offSet, @Param("pageSize") Integer pageSize);
 
     // 获取总记录数
-    @Select("select count(*) from sys_user;")
-    Integer getUserTotal();
+    Integer getUserTotal(@Param("deptIds") int[] deptIds, @Param("isSuper") Integer isSuper, @Param("name") String name);
 
     void addNewUser(User user);
 
