@@ -31,8 +31,20 @@ public interface NoticeMapper {
     @Update("update sys_notice set status = 1, publish_time = #{publishTime} where id = #{id}")
     void publishNotice(Notice notice);
 
+    // 撤销发布
+    @Update("update sys_notice set status = 2 where id = #{id}")
+    void quashNotice(Integer id);
+
     @Select("select user_id from sys_user_notice where notice_id = #{id}")
     String[] getReceiverList(Integer id);
 
     void deleteUserNotice(@Param("id") Integer id, @Param("list") String[] list);
+
+    @Select("select user_id from sys_user_notice where notice_id = #{id}")
+    String[] getUsersByNoticeId(Integer id);
+
+    List<Notice> getNoticeListByUserId(String userId, Integer offSet, Integer pageSize);
+
+    @Update("update sys_user_notice set is_read = true where user_id = #{userId} and notice_id = #{noticeId}")
+    void setNoticeRead(String userId, Integer noticeId);
 }

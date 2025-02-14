@@ -17,6 +17,7 @@ public class Notice {
     private String publisher;
     private String parsedPublisher;
     private String content;
+    private Boolean isRead;
     private String[] receiverList;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;

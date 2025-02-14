@@ -3,6 +3,7 @@ package com.example.cxx.service;
 import com.example.cxx.pojo.Notice;
 import com.example.cxx.pojo.ResPage;
 
+import java.util.List;
 import java.util.Map;
 
 public interface NoticeService {
@@ -20,4 +21,12 @@ public interface NoticeService {
     void deleteNoticeInBatch(int[] ids);
 
     void publishNotice(Notice notice);
+
+    void quashNotice(Integer id);
+
+    String[] getUsersByNoticeId(Integer id);
+
+    List<Notice> getNoticeList(Map<String, Object> map);
+
+    void setNoticeRead(Map<String, Object> map);
 }

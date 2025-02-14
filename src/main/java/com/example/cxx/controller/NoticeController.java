@@ -43,6 +43,13 @@ public class NoticeController {
         noticeService.publishNotice(notice);
         return Result.success("发布成功");
     }
+    // 撤销发布
+    @PutMapping("/quash")
+    Result quashNotice(@RequestBody Map<String, Integer> map) {
+        Integer id = map.get("id");
+        noticeService.quashNotice(id);
+        return Result.success("已撤销发布");
+    }
 
     // 删除单个
     @DeleteMapping ("/deleteNoticeById")
@@ -58,6 +65,28 @@ public class NoticeController {
         int[] ids = map.get("ids");
         noticeService.deleteNoticeInBatch(ids);
         return Result.success("删除成功");
+    }
+
+    // 查询notice关联的user
+    @PostMapping("/getUsersByNoticeId")
+    Result getUsersByNoticeId(@RequestBody Map<String, Integer> map) {
+        Integer id = map.get("id");
+        String[] users = noticeService.getUsersByNoticeId(id);
+        return Result.success(users);
+    }
+
+    // 根据用户查已发布公告数据
+    @PostMapping("/getNoticeListByUserId")
+    Result getNoticeList(@RequestBody Map<String, Object> map) {
+        List<Notice> data = noticeService.getNoticeList(map);
+        return Result.success(data);
+    }
+
+    // 标记通知已读
+    @PostMapping("/setNoticeRead")
+    Result setNoticeRead(@RequestBody Map<String, Object> map) {
+        noticeService.setNoticeRead(map);
+        return Result.success();
     }
 
 }

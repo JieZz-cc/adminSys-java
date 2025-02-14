@@ -50,5 +50,7 @@ public interface UserMapper {
 
     void importUsers(@Param("list") List<UserEntity> list);
 
+    @Select("select user_id from sys_user")
+    String[] getAllUserId();
 
 }

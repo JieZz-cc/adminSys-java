@@ -6,22 +6,6 @@
 <!--    大于一个参数时，keyProperty会报错-->
 <!--    多个参数时，在@param返回指定的参数的id， 如@param("list) keyProperty="list.id"-->
     <insert id="addRole" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
-<!--        insert into sys_role-->
-<!--            <trim prefix="(" suffix=")" suffixOverrides=",">-->
-<!--                role, role_name, is_super,-->
-<!--                <if test="remark != null and remark != ''">-->
-<!--                    remark,-->
-<!--                </if>-->
-<!--                create_time-->
-<!--            </trim>-->
-<!--        values-->
-<!--            <trim prefix="(" suffix=")" suffixOverrides=",">-->
-<!--                #{role}, #{roleName}, #{isSuper},-->
-<!--            <if test="remark != null and remark != ''">-->
-<!--                #{remark},-->
-<!--            </if>-->
-<!--                #{now}-->
-<!--            </trim>-->
     insert into sys_role (role_id, role_name, is_super, remark, create_time) values
     (#{roleId}, #{roleName}, #{isSuper}, #{remark}, now())
     </insert>

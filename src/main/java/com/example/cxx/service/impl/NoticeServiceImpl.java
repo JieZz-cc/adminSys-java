@@ -1,14 +1,13 @@
 package com.example.cxx.service.impl;
 
 import com.example.cxx.mapper.NoticeMapper;
+import com.example.cxx.mapper.UserMapper;
 import com.example.cxx.pojo.Notice;
 import com.example.cxx.pojo.ResPage;
-import com.example.cxx.pojo.Result;
 import com.example.cxx.service.NoticeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,12 +20,21 @@ public class NoticeServiceImpl implements NoticeService {
     @Autowired
     private NoticeMapper noticeMapper;
 
+    @Autowired
+    private UserMapper userMapper;
+
     @Override
     public void addNewNotice(Notice notice) {
         LocalDateTime now = LocalDateTime.now();
         notice.setCreateTime(now);
         noticeMapper.addNewNotice(notice);
-        noticeMapper.addUserNotice(notice.getId(), notice.getReceiverList());
+        String[] userArr;
+        if (notice.getToRange() == 0) {
+            userArr = userMapper.getAllUserId();
+        } else {
+            userArr = notice.getReceiverList();
+        }
+        noticeMapper.addUserNotice(notice.getId(), userArr);
     }
 
     // 查询单个
@@ -63,7 +71,13 @@ public class NoticeServiceImpl implements NoticeService {
     @Override
     public void editNoticeById(Notice notice) {
         noticeMapper.editNoticeById(notice);
-        String[] newUserList = notice.getReceiverList();
+        String[] newUserList;
+        if (notice.getToRange() == 0) {
+            newUserList = userMapper.getAllUserId();
+        } else {
+            newUserList = notice.getReceiverList();
+        }
+//        String[] newUserList = notice.getReceiverList();
         if (newUserList != null) {
             String[] oldUserList = noticeMapper.getReceiverList(notice.getId());
             if (oldUserList.equals(newUserList)) return ;
@@ -111,5 +125,37 @@ public class NoticeServiceImpl implements NoticeService {
         LocalDateTime now = LocalDateTime.now();
         notice.setPublishTime(now);
         noticeMapper.publishNotice(notice);
+    }
+
+    @Override
+    public void quashNotice(Integer id) {
+        noticeMapper.quashNotice(id);
+    }
+
+    @Override
+    public String[] getUsersByNoticeId(Integer id) {
+       return noticeMapper.getUsersByNoticeId(id);
+    }
+
+    @Override
+    public List<Notice> getNoticeList(Map<String, Object> map) {
+        String userId = (String) map.get("userId");
+        Integer pageNum = (Integer) map.get("pageNum");
+        Integer pageSize = (Integer) map.get("pageSize");
+        Integer offSet;
+        if (pageNum != null ) {
+            offSet = (pageNum - 1) * pageSize;
+        } else {
+            offSet = null;
+        }
+        List<Notice> list = noticeMapper.getNoticeListByUserId(userId, offSet, pageSize);
+        return list;
+    }
+
+    @Override
+    public void setNoticeRead(Map<String, Object> map) {
+        Integer noticeId = (Integer) map.get("noticeId");
+        String userId = (String) map.get("userId");
+        noticeMapper.setNoticeRead(userId, noticeId);
     }
 }
