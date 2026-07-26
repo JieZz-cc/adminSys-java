@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.cxx.mapper.NoticeMapper">
+    <insert id="addNewNotice" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into sys_notice (title, notice_type, status, to_range, priority, publisher, content, create_time)
+        values
+        (#{notice.title}, #{notice.noticeType}, #{notice.status},#{notice.toRange},#{notice.priority},
+        #{notice.publisher}, #{notice.content}, #{notice.createTime})
+        ;
+    </insert>
+
+    <insert id="addUserNotice">
+        set foreign_key_checks = 0;
+        insert into sys_user_notice (user_id, notice_id, create_time, is_read)
+        values
+        <foreach collection="receiverList" index="index" item="item" separator=",">
+            (#{item}, #{id}, now(), false)
+        </foreach>
+        ;
+        set foreign_key_checks = 1;
+    </insert>
+
+    <delete id="deleteUserNotice">
+        delete from sys_user_notice where notice_id = #{id} and user_id in
+        <foreach collection="list" item="user_id" separator="," open="(" close=");">
+            #{user_id}
+        </foreach>
+    </delete>
+
+<!--    获取通知总条数-->
+    <select id="getNoticeCounts" resultType="java.lang.Integer">
+        select count(*) from sys_notice
+        <where>
+            <if test="title != null and title != ''">
+                title like concat('%', #{title}, '%')
+            </if>
+            <if test="noticeType != null">
+                and notice_type = #{noticeType}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="toRange != null">
+                and to_range = #{toRange}
+            </if>
+            <if test="priority != null">
+                and priority = #{priority}
+            </if>
+            <if test="publisher != null and publisher != ''">
+                and publisher = #{publisher}
+            </if>
+        </where>
+    </select>
+
+<!--    获取通知列表-->
+    <select id="getNotices" resultType="com.example.cxx.pojo.Notice">
+        select n.*, u.username as parsedPublisher from sys_notice n
+        left join sys_user u on n.publisher = u.user_id
+        <where>
+            <if test="title != null and title != ''">
+                n.title like concat('%', #{title}, '%')
+            </if>
+            <if test="noticeType != null">
+                and n.notice_type = #{noticeType}
+            </if>
+            <if test="status != null">
+                and n.status = #{status}
+            </if>
+            <if test="toRange != null">
+                and n.to_range = #{toRange}
+            </if>
+            <if test="priority != null">
+                and n.priority = #{priority}
+            </if>
+            <if test="publisher != null and publisher != ''">
+                and n.publisher = #{publisher}
+            </if>
+        </where>
+        order by n.id
+        <if test="offSet != null and pageSize != null">
+            limit #{offSet} , #{pageSize}
+        </if>
+    </select>
+
+<!--    编辑-->
+    <update id="editNoticeById">
+        update sys_notice
+        <set>
+            <if test="notice.title != null and notice.title != ''">
+                title = #{notice.title},
+            </if>
+            <if test="notice.noticeType != null">
+                notice_type = #{notice.noticeType},
+            </if>
+            <if test="notice.status != null">
+                status = #{notice.status},
+            </if>
+            <if test="notice.toRange != null">
+                to_range = #{notice.toRange},
+            </if>
+            <if test="notice.priority != null">
+                priority = #{notice.priority},
+            </if>
+            content = #{notice.content},
+        </set>
+        where id = #{notice.id}
+
+    </update>
+
+<!--    查询userid-->
+<!--    <select id="getReceiverList" resultType="java.lang.reflect.Array">-->
+<!--        -->
+<!--    </select>-->
+
+<!--    批量删除-->
+    <delete id="deleteNoticeInBatch">
+        delete from sys_notice where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=");">
+            #{id}
+        </foreach>
+    </delete>
+
+<!--    根据用户查已发布的公告-->
+    <select id="getNoticeListByUserId" resultType="com.example.cxx.pojo.Notice">
+        select n.id, n.title, n.notice_type, n.status, n.priority, n.publish_time, n.content, un.is_read, u.username as parsedPublisher
+        from sys_notice n
+        left join sys_user_notice un on un.notice_id = n.id
+        left join sys_user u on u.user_id = n.publisher
+        where un.user_id = #{userId} and n.status = 1
+        order by n.publish_time desc
+        <if test="offSet != null and pageSize != null">
+            limit #{offSet} , #{pageSize}
+        </if>
+    </select>
+
+</mapper>

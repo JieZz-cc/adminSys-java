@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
         } else {
             offSet = null;
         }
-            Integer total = userMapper.getUserTotal();
+            Integer total = userMapper.getUserTotal(deptIds, isSuper, name);
             List<User> list = userMapper.getUserList(deptIds, isSuper, name, offSet, pageSize);
             rp.setTotal(total);
             rp.setItems(list);

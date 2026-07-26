@@ -69,6 +69,26 @@
         </if>
     </select>
 
+<!--    获取用户条数-->
+    <select id="getUserTotal" resultType="java.lang.Integer">
+        select count(*) from sys_user u
+        left join sys_department d on  u.dept_id = d.id
+        left join sys_user_role ur on ur.user_id = u.user_id
+        left join sys_role r on r.role_id= ur.role_id
+        <where>
+            <if test="name != null and name !=''">
+                u.username like concat('%', #{name}, '%') or u.user_id like concat('%', #{name}, '%')
+            </if>
+            <if test="isSuper != null">
+                and r.is_super = #{isSuper}
+            </if>
+            and u.dept_id in
+            <foreach collection="deptIds" item="deptId" separator="," open="(" close=")">
+                #{deptId}
+            </foreach>
+        </where>
+    </select>
+
 <!--    导出-->
     <select id="getUserEntityList" resultType="com.example.cxx.pojo.UserEntity">
         select u.*, d.name as deptName, ur.role_id as roleId, r.role_name as roleName,r.is_super as isSuper
