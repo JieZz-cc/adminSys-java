@@ -36,7 +36,7 @@
     <select id="getDepartmentIds" resultType="java.lang.Integer">
         with recursive dept_tree as (
             select id from sys_department where id = #{id}
-            union all
+            union
             select d.id from sys_department d
             join dept_tree dt on d.parent_id = dt.id
         )
